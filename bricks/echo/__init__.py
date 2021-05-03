@@ -2,6 +2,10 @@
 from echo.src.echo import (
   _echo_
 )
+from echo.src.tick import (
+  tick
+)
+
 
 #
 from aiohttp import web
