@@ -12,6 +12,6 @@ app_echo = web.Application()
 #
 app_echo.add_routes([
 
-  web.post('/echo',   _echo_),
+  web.post('/',   _echo_),
   
 ])
