@@ -23,9 +23,6 @@ RUN pipenv install --system --deploy
 
 WORKDIR /usr/src/api
 
-ENV GOOGLE_APPLICATION_CREDENTIALS=/usr/src/api/libs/gtma/v2-lescommis-f9c0119dfed4.json
-ENV REDIS_CACHE_URL=redis://aio_redis:6379/0
-
 EXPOSE 8000
 
 # DEV

@@ -6,11 +6,14 @@
 from rich.traceback import install
 install()
 
+
+
 import aiohttp
-from aiohttp import web
 import aiohttp_cors
 
-from echo          import app_echo
+
+
+from aiohttp import web
 
 
 
@@ -21,6 +24,8 @@ app = web.Application(
   ],
   client_max_size=1024**3
 )
+
+from echo import app_echo
 
 app.add_subapp('/echo', app_echo)
 
@@ -33,10 +38,10 @@ cors = aiohttp_cors.setup(app, defaults={
   )
 })
 
+
 for route in list(app.router.routes()):
   print(route)
   cors.add(route)
-
 
 
 
