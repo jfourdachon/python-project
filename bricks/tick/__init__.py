@@ -1,7 +1,8 @@
 # 
 from tick.src.tick import (
   _tick_,
-  tick_all
+  tick_all,
+  plot
 )
 
 
@@ -15,6 +16,7 @@ app_tick = web.Application()
 app_tick.add_routes([
 
   web.get('/',   _tick_),
-  web.get('/all', tick_all)
+  web.get('/all', tick_all),
+  web.get('/plot', plot)
   
 ])
