@@ -86,28 +86,28 @@ async def plot(request):
                 )
 
                 result = await session.execute(query)
-                # print(result)
+                print(result)
+                histprices = result['tickers']
 
+                histpricesdf = pd.DataFrame.from_dict(histprices)
+                # histpricesdf = histpricesdf.rename({'price': symbol}, axis=1)
                 listofdf = []
+                listofdf.append(histpricesdf)
 
-                # for item in result:
-                #     histpricesdf = pd.DataFrame.from_dict(result)
-                #     listofdf.append(histpricesdf)
+                dfs = [df.set_index('created_at') for df in listofdf]
+                histpriceconcat = pd.concat(dfs,axis=1)
 
-                # dfs = [df.set_index('created_at') for df in listofdf]
-                # histpriceconcat = pd.concat(dfs, axis=1)
+                print(histpriceconcat)
+                for i, col in enumerate(histpriceconcat.columns):
+                    histpriceconcat[col].plot()
 
-                # print(histpriceconcat)
-                # for i, col in enumerate(histpriceconcat.columns):
-                #     histpriceconcat[col].plot()
+                    plt.title('Price Evolution Comparison')
 
-                #     plt.title('Price Evolution Comparison')
+                    plt.xticks(rotation=70)
+                    plt.legend(histpriceconcat.columns)
 
-                #     plt.xticks(rotation=70)
-                #     plt.legend(histpriceconcat.columns)
-
-                #     # Saving the graph into a JPG file
-                #     plt.savefig('test.png', bbox_inches='tight')
+                    # Saving the graph into a JPG file
+                    plt.savefig('test.png', bbox_inches='tight')
 
             return aiohttp.web.json_response(result)
 
