@@ -6,6 +6,11 @@
 from rich.traceback import install
 install()
 
+from middleware.auth_middleware import (
+  middleware_factory
+)
+#
+
 
 
 import aiohttp
@@ -20,7 +25,7 @@ from aiohttp import web
 # Create Application with Middlewares
 app = web.Application(
   middlewares=[
-    # authMiddleware #authentification
+    middleware_factory()
   ],
   client_max_size=1024**3
 )

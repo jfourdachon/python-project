@@ -17,6 +17,6 @@ app_tick.add_routes([
 
   web.get('/',   _tick_),
   web.get('/all', tick_all),
-  web.get('/plot', plot)
+  web.post('/plot', plot)
   
 ])
