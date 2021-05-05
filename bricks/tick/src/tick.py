@@ -69,49 +69,47 @@ loop = asyncio.get_event_loop()
 async def plot(request):
     try:
         async with aiohttp.ClientSession() as session:
-            transport = AIOHTTPTransport(
-                url='https://dbschool.alcyone.life/graphql')
 
-            async with Client(transport=transport, fetch_schema_from_transport=True) as session:
-                # Execute single query
-                query = gql(
-                    """
-                        query {
-                            tickers(where: { symbol_contains: "BTCUSDT" }) {
-                                price
-                                created_at
-                            }
-                        }
-                    """
-                )
+            req_param = request.rel_url.query['symbol'].split(',') if request.rel_url.query else ["1INCHUSDT", "1INCHDOWNUSDT", "1INCHBUSD", "1INCHUSDT"] 
+            req = await request.json() if request.body_exists else {"symbol": req_param}
+            print("*************", req["symbol"])
+            transport = AIOHTTPTransport(url='https://dbschool.alcyone.life/graphql')
+            client = Client(transport=transport, fetch_schema_from_transport=True)
 
-                result = await session.execute(query)
-                print(result)
+            listofdf = []
+            for symbol in req["symbol"]:
+                query = gql("""query {
+                                tickers(where: { symbol_contains: "%s" }) {
+                                    price
+                                    created_at
+                                }
+                            }""" % symbol
+                        ) 
+
+                result = await client.execute_async(query)
                 histprices = result['tickers']
 
                 histpricesdf = pd.DataFrame.from_dict(histprices)
-                # histpricesdf = histpricesdf.rename({'price': symbol}, axis=1)
-                listofdf = []
+                histpricesdf = histpricesdf.rename({'price': symbol}, axis=1)
                 listofdf.append(histpricesdf)
 
-                dfs = [df.set_index('created_at') for df in listofdf]
-                histpriceconcat = pd.concat(dfs,axis=1)
+            dfs = [df.set_index('created_at') for df in listofdf]
+            histpriceconcat = pd.concat(dfs, axis=1)
+            
+            for i, col in enumerate(histpriceconcat.columns):
+                histpriceconcat[col].plot()
 
-                print(histpriceconcat)
-                for i, col in enumerate(histpriceconcat.columns):
-                    histpriceconcat[col].plot()
+            plt.title('Price Evolution Comparison')
+            plt.xticks(rotation=70)
+            plt.legend(histpriceconcat.columns)
+            filename = '.'.join([ '-'.join(req["symbol"]), 'png'])
+            file_path = f"./tick/plots/{filename}"
+            plt.savefig(file_path, bbox_inches='tight')
 
-                    plt.title('Price Evolution Comparison')
-
-                    plt.xticks(rotation=70)
-                    plt.legend(histpriceconcat.columns)
-
-                    # Saving the graph into a JPG file
-                    plt.savefig('test.png', bbox_inches='tight')
-
-            return aiohttp.web.json_response(result)
-
-    except Exception as exp:
-        raise exp
+        return aiohttp.web.FileResponse(f'./{file_path}')
+        # return aiohttp.web.json_response(dict(json=result))
+    except Exception as e:
+        print(e)
+        raise e
 
 loop = asyncio.get_event_loop()
